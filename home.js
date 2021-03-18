@@ -1,4 +1,4 @@
-const weatherData = {
+const initialWeatherData = {
   tempUnit: "C",
   windSpeedUnit: "m/s",
   days: [
@@ -54,11 +54,11 @@ const weatherData = {
   ],
 };
 
-let temperatureUnit = "C";
-let windUnit = "m/s";
+let weatherData = { ...initialWeatherData };
 
 const loadData = () => {
   let dataElement = document.getElementById("weatherData");
+  dataElement.innerHTML = "";
   for (let element of weatherData.days) {
     let weatherItem = document.createElement("div");
     weatherItem.classList.add("weatherItem");
@@ -71,7 +71,7 @@ const loadData = () => {
 
     let weatherItemTemp = document.createElement("p");
     weatherItemTemp.classList.add("weatherItemTemp");
-    weatherItemTemp.innerHTML = `${element.temp}° <small>${temperatureUnit}</small>`;
+    weatherItemTemp.innerHTML = `${element.temp}° <small>${weatherData.tempUnit}</small>`;
     weatherItem.appendChild(weatherItemTemp);
 
     dataElement.appendChild(weatherItem);
@@ -99,13 +99,13 @@ const getArrowSymbol = (direction) => {
   }
 };
 
-const onClick = (e) => {
+const renderDay = (day) => {
+  let clickedDay = day;
   let widget = document.getElementById("weatherWidget");
   let widgetTopArea = document.createElement("div");
   let widgetBottomArea = document.createElement("div");
   widgetTopArea.classList.add("widgetTopArea");
   widgetBottomArea.classList.add("widgetBottomArea");
-  let clickedDay = e.currentTarget.firstChild.innerHTML;
   for (let element of weatherData.days) {
     if (clickedDay === element.day) {
       widget.innerHTML = "";
@@ -114,7 +114,8 @@ const onClick = (e) => {
 
       let widgetDay = document.createElement("div");
       widgetDay.classList.add("widgetDay");
-      widgetDay.innerHTML = element.day;
+      widgetDay.innerHTML = getFullDayName(element.day);
+      widgetDay.innerHTML += '<br/><div class="hint">Try clicking on the temperature or wind speed</div>';
       widgetTopArea.appendChild(widgetDay);
 
       let widgetType = document.createElement("img");
@@ -125,16 +126,87 @@ const onClick = (e) => {
 
       let widgetTemp = document.createElement("div");
       widgetTemp.classList.add("widgetTemp");
-      widgetTemp.innerHTML = `${element.temp}° <small>${temperatureUnit}</small>`;
+      widgetTemp.innerHTML = `${element.temp}° <small>${weatherData.tempUnit}</small>`;
       widgetBottomArea.appendChild(widgetTemp);
+      widgetTemp.addEventListener(
+        "click",
+        function () {
+          changeTempUnit(element.day);
+        },
+        false
+      );
 
       let widgetWind = document.createElement("div");
       widgetWind.classList.add("widgetWind");
       let windArrowSymbol = getArrowSymbol(element.windDirection);
-      widgetWind.innerHTML = `${windArrowSymbol} ${element.windSpeed} ${windUnit}`;
+      widgetWind.innerHTML = `${windArrowSymbol} ${element.windSpeed} ${weatherData.windSpeedUnit}`;
       widgetBottomArea.appendChild(widgetWind);
+      widgetWind.addEventListener(
+        "click",
+        function () {
+          changeWindUnit(element.day);
+        },
+        false
+      );
     }
   }
+};
+
+const getFullDayName = (inputDay) => {
+  switch (inputDay) {
+    case "Mon":
+      return "Monday";
+    case "Tue":
+      return "Tuesday";
+    case "Wed":
+      return "Wednesday";
+    case "Thu":
+      return "Thursday";
+    case "Fri":
+      return "Friday";
+    case "Sat":
+      return "Saturday";
+    case "Sun":
+      return "Sunday";
+  }
+};
+
+const changeWindUnit = (inputDay) => {
+  if (weatherData.windSpeedUnit === "m/s") {
+    weatherData.windSpeedUnit = "km/h";
+    for (let element of weatherData.days) {
+      element.windSpeed *= 3.6;
+      element.windSpeed = element.windSpeed.toFixed(1);
+    }
+  } else {
+    weatherData.windSpeedUnit = "m/s";
+    for (let element of weatherData.days) {
+      element.windSpeed /= 3.6;
+      element.windSpeed = element.windSpeed.toFixed(0);
+    }
+  }
+  renderDay(inputDay);
+};
+
+const changeTempUnit = (inputDay) => {
+  if (weatherData.tempUnit === "C") {
+    weatherData.tempUnit = "K";
+    for (let element of weatherData.days) {
+      element.temp += 273.15;
+    }
+  } else {
+    weatherData.tempUnit = "C";
+    for (let element of weatherData.days) {
+      element.temp -= 273.15;
+    }
+  }
+  renderDay(inputDay);
+  loadData();
+};
+
+const onClick = (e) => {
+  let clickedDay = e.currentTarget.firstChild.innerHTML;
+  renderDay(clickedDay);
 };
 
 window.addEventListener("load", loadData);
