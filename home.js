@@ -57,24 +57,45 @@ const initialWeatherData = {
 let weatherData = { ...initialWeatherData };
 
 const loadData = () => {
-  let dataElement = document.getElementById("weatherData");
+  const dataElement = document.getElementById("weatherData");
   dataElement.innerHTML = "";
-  for (let element of weatherData.days) {
-    let weatherItem = document.createElement("div");
+  weatherData.days.forEach((element) => {
+    const weatherItem = document.createElement("div");
     weatherItem.classList.add("weatherItem");
-    weatherItem.addEventListener("click", (e) => onClick(e));
+    weatherItem.addEventListener("click", onClick);
 
-    let weatherItemDay = document.createElement("p");
+    const weatherItemDay = document.createElement("p");
     weatherItemDay.classList.add("weatherItemDay");
     weatherItemDay.innerHTML = element.day;
     weatherItem.appendChild(weatherItemDay);
 
-    let weatherItemTemp = document.createElement("p");
+    const weatherItemTemp = document.createElement("p");
     weatherItemTemp.classList.add("weatherItemTemp");
     weatherItemTemp.innerHTML = `${element.temp}° <small>${weatherData.tempUnit}</small>`;
     weatherItem.appendChild(weatherItemTemp);
 
     dataElement.appendChild(weatherItem);
+  });
+};
+
+window.addEventListener("load", loadData);
+
+const getFullDayName = (inputDay) => {
+  switch (inputDay) {
+    case "Mon":
+      return "Monday";
+    case "Tue":
+      return "Tuesday";
+    case "Wed":
+      return "Wednesday";
+    case "Thu":
+      return "Thursday";
+    case "Fri":
+      return "Friday";
+    case "Sat":
+      return "Saturday";
+    case "Sun":
+      return "Sunday";
   }
 };
 
@@ -100,31 +121,32 @@ const getArrowSymbol = (direction) => {
 };
 
 const renderDay = (day) => {
-  let clickedDay = day;
-  let widget = document.getElementById("weatherWidget");
-  let widgetTopArea = document.createElement("div");
-  let widgetBottomArea = document.createElement("div");
+  const widget = document.getElementById("weatherWidget");
+  const widgetTopArea = document.createElement("div");
+  const widgetBottomArea = document.createElement("div");
   widgetTopArea.classList.add("widgetTopArea");
   widgetBottomArea.classList.add("widgetBottomArea");
-  for (let element of weatherData.days) {
-    if (clickedDay === element.day) {
+  weatherData.days.forEach((element) => {
+    if (day === element.day) {
       widget.innerHTML = "";
       widget.appendChild(widgetTopArea);
       widget.appendChild(widgetBottomArea);
 
-      let widgetDay = document.createElement("div");
+      const widgetDay = document.createElement("div");
       widgetDay.classList.add("widgetDay");
       widgetDay.innerHTML = getFullDayName(element.day);
-      widgetDay.innerHTML += '<br/><div class="hint">Try clicking on the temperature or wind speed</div>';
+      widgetDay.innerHTML +=
+        '<br/><div class="hint">Try clicking on the temperature or wind speed</div>';
       widgetTopArea.appendChild(widgetDay);
 
-      let widgetType = document.createElement("img");
+      const widgetType = document.createElement("img");
       widgetDay.classList.add("widgetType");
       widgetType.src = "./assets/" + element.type + ".png";
+      widgetType.alt = "";
       widgetType.classList.add("widgetType");
       widgetTopArea.appendChild(widgetType);
 
-      let widgetTemp = document.createElement("div");
+      const widgetTemp = document.createElement("div");
       widgetTemp.classList.add("widgetTemp");
       widgetTemp.innerHTML = `${element.temp}° <small>${weatherData.tempUnit}</small>`;
       widgetBottomArea.appendChild(widgetTemp);
@@ -136,9 +158,9 @@ const renderDay = (day) => {
         false
       );
 
-      let widgetWind = document.createElement("div");
+      const widgetWind = document.createElement("div");
       widgetWind.classList.add("widgetWind");
-      let windArrowSymbol = getArrowSymbol(element.windDirection);
+      const windArrowSymbol = getArrowSymbol(element.windDirection);
       widgetWind.innerHTML = `${windArrowSymbol} ${element.windSpeed} ${weatherData.windSpeedUnit}`;
       widgetBottomArea.appendChild(widgetWind);
       widgetWind.addEventListener(
@@ -149,41 +171,27 @@ const renderDay = (day) => {
         false
       );
     }
-  }
+  });
 };
 
-const getFullDayName = (inputDay) => {
-  switch (inputDay) {
-    case "Mon":
-      return "Monday";
-    case "Tue":
-      return "Tuesday";
-    case "Wed":
-      return "Wednesday";
-    case "Thu":
-      return "Thursday";
-    case "Fri":
-      return "Friday";
-    case "Sat":
-      return "Saturday";
-    case "Sun":
-      return "Sunday";
-  }
+const onClick = (e) => {
+  const clickedDay = e.currentTarget.firstChild.innerHTML;
+  renderDay(clickedDay);
 };
 
 const changeWindUnit = (inputDay) => {
   if (weatherData.windSpeedUnit === "m/s") {
     weatherData.windSpeedUnit = "km/h";
-    for (let element of weatherData.days) {
+    weatherData.days.forEach((element) => {
       element.windSpeed *= 3.6;
       element.windSpeed = element.windSpeed.toFixed(1);
-    }
+    });
   } else {
     weatherData.windSpeedUnit = "m/s";
-    for (let element of weatherData.days) {
+    weatherData.days.forEach((element) => {
       element.windSpeed /= 3.6;
       element.windSpeed = element.windSpeed.toFixed(0);
-    }
+    });
   }
   renderDay(inputDay);
 };
@@ -191,22 +199,15 @@ const changeWindUnit = (inputDay) => {
 const changeTempUnit = (inputDay) => {
   if (weatherData.tempUnit === "C") {
     weatherData.tempUnit = "K";
-    for (let element of weatherData.days) {
+    weatherData.days.forEach((element) => {
       element.temp += 273.15;
-    }
+    });
   } else {
     weatherData.tempUnit = "C";
-    for (let element of weatherData.days) {
+    weatherData.days.forEach((element) => {
       element.temp -= 273.15;
-    }
+    });
   }
   renderDay(inputDay);
   loadData();
 };
-
-const onClick = (e) => {
-  let clickedDay = e.currentTarget.firstChild.innerHTML;
-  renderDay(clickedDay);
-};
-
-window.addEventListener("load", loadData);
