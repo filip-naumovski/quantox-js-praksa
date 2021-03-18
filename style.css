@@ -1,0 +1,32 @@
+#weatherWidget {
+    margin:auto;
+    display: flex;
+    width: 30vw;
+    height: 30vw;
+    background-image: linear-gradient(to right bottom,rgb(39, 39, 39), rgb(70,70,70));
+    border-radius: 5px;
+    margin-top: 5px;
+}
+
+#weatherData {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 3px;
+}
+
+.weatherItem {
+    display: inline-block;
+    height: 10vw;
+    width: 8vw;
+    margin-left: 0.1vw;
+    margin-right: 0.1vw;
+    background-image: linear-gradient(to right bottom,rgb(39, 39, 39), rgb(70,70,70));
+    border-radius: 3px;
+    transition: transform 0.1s ease-in;
+}
+
+.weatherItem:hover {
+    cursor: pointer;
+    transform: scale(1.03);
+}
